@@ -36,7 +36,7 @@ class BaseSimulationConfig(BaseModel):
     simulation_count: int
     pulls_per_simulation: int
     duplicate_mode: Literal["allow_duplicates", "duplicate_currency", "hard_prevention"]
-    seed: str
+    seed: int | None
     item_selection_mode: Literal["item_probability", "equal_chance"]
 
 
