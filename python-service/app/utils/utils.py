@@ -1,7 +1,7 @@
 from typing import Sequence
-from domain.models import RawLootItem, RawRarity
+from app.domain.models import RawLootItem, RawRarity
 from .constants import MAX_PULL_AMOUNT
-from domain import (
+from app.domain import (
     RawSimulationConfig,
     NormalizedSimulationConfig,
     NormalizedRarity,
