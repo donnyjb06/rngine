@@ -1,4 +1,5 @@
 from typing import Sequence
+from math import isclose
 from app.domain.models import RawLootItem, RawRarity
 from .constants import MAX_PULL_AMOUNT
 from app.domain import (
@@ -50,7 +51,11 @@ def validate_percentages(config: NormalizedSimulationConfig) -> None:
         if rarity.probability is not None
     )
 
-    if total_rarity_probability > 100:
+    if total_rarity_probability > PERCENT_TOTAL and not isclose(
+        total_rarity_probability,
+        PERCENT_TOTAL,
+        abs_tol=PERCENT_TOLERANCE,
+    ):
         raise ValueError("Total rarity probabilities must not exceed 100%")
 
     for rarity in config.rarities:
@@ -65,7 +70,11 @@ def validate_percentages(config: NormalizedSimulationConfig) -> None:
             item.probability for item in rarity.items if item.probability is not None
         )
 
-        if total_item_probability > 100:
+        if total_item_probability > PERCENT_TOTAL and not isclose(
+            total_item_probability,
+            PERCENT_TOTAL,
+            abs_tol=PERCENT_TOLERANCE,
+        ):
             raise ValueError(
                 f"Total item probabilities in rarity {rarity.name} must not exceed 100%"
             )
@@ -100,18 +109,36 @@ def normalize_items_for_rarity(
     rarity: RawRarity, item_selection_mode: str, probability_mode: str
 ) -> list[NormalizedLootItem]:
     total_weight = getTotalWeight(rarity.items)
-    return [
-        NormalizedLootItem(
-            name=item.name,
-            probability=100 / len(rarity.items)
-            if item_selection_mode == "equal_chance"
-            else (require_weight(item) / total_weight) * 100
-            if probability_mode == "weight"
-            else item.probability,
-            value=item.value,
+    items = []
+    if not rarity.items:
+        raise ValueError("Rarity {rarity.name} must have at least one item")
+
+    if total_weight == 0 and probability_mode == "weight":
+        raise ValueError(
+            f"Total weight for items in rarity {rarity.name} cannot be zero for weight-based probability mode"
         )
-        for item in rarity.items
-    ]
+
+    for item in rarity.items:
+        if item_selection_mode == "equal_chance":
+            probability = 100 / len(rarity.items)
+
+        elif probability_mode == "weight":
+            probability = (require_weight(item) / total_weight) * 100
+
+        else:
+            if item.probability is None:
+                raise ValueError(
+                    f"Item {item.name} in rarity {rarity.name} must have a probability if probability_mode is set to percentage"
+                )
+
+            probability = item.probability
+
+        item_data = item.model_dump(exclude={"weight", "probability"})
+        normalized_item = NormalizedLootItem(probability=probability, **item_data)
+
+        items.append(normalized_item)
+
+    return items
 
 
 def normalize_rarity(
@@ -129,6 +156,11 @@ def normalize_rarity(
         probability = (require_weight(rarity) / total_rarity_weight) * 100
 
     else:
+        if rarity.probability is None:
+            raise ValueError(
+                "probability must exist if probability_mode is set to percentage"
+            )
+
         probability = rarity.probability
 
     rarity_data = rarity.model_dump(exclude={"items", "weight", "probability"})

@@ -13,7 +13,7 @@ class RawProbabilityEntity(ProbabilityEntity):
 
 
 class NormalizedProbabilityEntity(ProbabilityEntity):
-    probability: Percentage | None
+    probability: Percentage
 
 
 class RawLootItem(RawProbabilityEntity):
