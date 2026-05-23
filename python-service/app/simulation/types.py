@@ -1,9 +1,10 @@
 from typing import TypedDict
 from random import Random
+from app.domain.models import NormalizedProbabilityEntity
 
 
 class EndpointData(TypedDict):
-    index: set[str]
+    entities: list[NormalizedProbabilityEntity]
     percentages: list[float]
 
 
