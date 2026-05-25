@@ -93,6 +93,11 @@ def getTotalWeight(entities: Sequence[RawRarity | RawLootItem]) -> float:
 
     for entity in entities:
         if entity.weight is not None:
+            if entity.weight <= 0:
+                raise ValueError(
+                    f"Entity {entity.name} has invalid weight {entity.weight}"
+                )
+
             total_weight += entity.weight
 
     return total_weight
