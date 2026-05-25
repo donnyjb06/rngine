@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from typing import TypedDict
 from random import Random
 from app.domain.models import NormalizedProbabilityEntity
@@ -12,37 +13,40 @@ class Endpoints(TypedDict):
     rarities: EndpointData
     items: dict[str, EndpointData]
 
-
-class SimulationState(TypedDict):
+@dataclass
+class SimulationState:
     rng: Random
-    pulled_items: set[str]
-    pulled_rarities: set[str]
-    eligible_items_by_rarity: dict[str, list[str]]
     endpoints: Endpoints
-    current_total_pulls: int
+    eligible_items_by_rarity: dict[str, list[str]]
+    current_total_pulls: int = 0
+    pulled_items: set[str] = field(default_factory=set)
+    pulled_rarities: set[str] = field(default_factory=set)
 
 
-class ProbabilityEntityStats(TypedDict):
+@dataclass
+class ProbabilityEntityStats:
     expected_probability: dict[str, float]
     pull_counts: dict[str, int]
     currency_amounts: dict[str, int] | None
     duplicate_amounts: dict[str, int] | None
     average_pulls_until_entity: dict[str, float] | None
-    observed_probability: dict[str, float]
+    observed_probability: dict[str, float] = field(default_factory=dict)
 
 
-class RarityStats(ProbabilityEntityStats):
-    average_pulls_until_completion: dict[str, float]
+@dataclass
+class RarityStats:
+    average_pulls_until_completion: dict[str, float] = field(default_factory=dict)
 
 
-class GlobalStats(TypedDict):
-    total_pulls: int
+@dataclass
+class GlobalStats:
     total_duplicates: int | None
     total_currency: int | None
     mean_currency: float | None
     median_currency: float | None
     currency_stdev: float | None
     average_duplicate_count: float | None
+    total_pulls: int = 0
 
 
 class SimulationStats(TypedDict):
@@ -51,7 +55,8 @@ class SimulationStats(TypedDict):
     item_stats: ProbabilityEntityStats
 
 
-class SimulationAggregationStats(TypedDict):
-    mean_currency_per_simulation: list[float]
-    total_currency_per_simulation: list[float]
-    duplicate_amounts_per_simulation: list[int]
+@dataclass
+class SimulationAggregationStats:
+    mean_currency_per_simulation: list[float] = field(default_factory=list)
+    total_currency_per_simulation: list[float] = field(default_factory=list)
+    duplicate_amounts_per_simulation: list[int] = field(default_factory=list)
