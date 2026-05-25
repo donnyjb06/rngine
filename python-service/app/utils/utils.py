@@ -1,7 +1,7 @@
 from typing import Sequence
 from math import isclose
 from app.domain.models import RawLootItem, RawRarity
-from .constants import MAX_PULL_AMOUNT
+from .constants import MAX_PULL_AMOUNT, PERCENT_TOLERANCE, PERCENT_TOTAL
 from app.domain import (
     RawSimulationConfig,
     NormalizedSimulationConfig,
