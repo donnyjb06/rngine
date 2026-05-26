@@ -107,6 +107,9 @@ def require_weight(entity: RawRarity | RawLootItem) -> float:
     if entity.weight is None:
         raise ValueError(f"Entity {entity.name} is missing weight")
 
+    elif entity.weight <= 0:
+        raise ValueError(f"Entity {entity.name} has invalid weight {entity.weight}")
+
     return entity.weight
 
 
