@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import TypedDict
-from random import Random
 from app.domain.models import NormalizedProbabilityEntity
 
 
@@ -15,7 +14,6 @@ class Endpoints(TypedDict):
 
 @dataclass
 class SimulationState:
-    rng: Random
     endpoints: Endpoints
     eligible_items_by_rarity: dict[str, list[str]]
     current_total_pulls: int = 0
