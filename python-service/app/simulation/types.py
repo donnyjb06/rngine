@@ -6,15 +6,16 @@ from app.domain.models import (
     NormalizedRarity,
 )
 
+T = TypeVar("T", bound=NormalizedProbabilityEntity)
 
-class EndpointData(TypedDict):
-    entities: list[NormalizedProbabilityEntity]
+class EndpointData[T](TypedDict):
+    entities: list[T]
     percentages: list[float]
 
 
 class Endpoints(TypedDict):
-    rarities: EndpointData
-    items: dict[str, EndpointData]
+    rarities: EndpointData[NormalizedRarity]
+    items: dict[str, EndpointData[NormalizedLootItem]]
 
 @dataclass
 class SimulationState:
