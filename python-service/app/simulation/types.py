@@ -1,6 +1,10 @@
 from dataclasses import dataclass, field
-from typing import TypedDict
-from app.domain.models import NormalizedProbabilityEntity
+from typing import TypeVar, TypedDict
+from app.domain.models import (
+    NormalizedLootItem,
+    NormalizedProbabilityEntity,
+    NormalizedRarity,
+)
 
 
 class EndpointData(TypedDict):
@@ -23,38 +27,81 @@ class SimulationState:
 
 @dataclass
 class ProbabilityEntityStats:
+    pull_counts: dict[str, int]
+    currency_amounts: dict[str, int]
+    duplicate_amounts: dict[str, int]
+
+
+@dataclass
+class SimulationStats:
+    rarity_stats: ProbabilityEntityStats
+    item_stats: ProbabilityEntityStats
+    total_currency: int = 0
+    total_duplicates: int = 0
+
+
+@dataclass
+class AggregationProbabilityEntityStats:
+    pulls_until_entity: dict[str, list[int]]
+
+
+@dataclass
+class AggregationRarityStats(AggregationProbabilityEntityStats):
+    pulls_until_completion: dict[str, list[int]]
+
+
+@dataclass
+class SimulationAggregationStats:
+    item_stats: AggregationProbabilityEntityStats
+    rarity_stats: AggregationRarityStats
+    median_currency_per_simulation: list[float] = field(default_factory=list)
+    mean_currency_per_simulation: list[float] = field(default_factory=list)
+    total_currency_per_simulation: list[float] = field(default_factory=list)
+    duplicate_amounts_per_simulation: list[int] = field(default_factory=list)
+
+
+@dataclass
+class BatchProbabilityEntityStats:
     expected_probability: dict[str, float]
     pull_counts: dict[str, int]
-    currency_amounts: dict[str, int] | None
-    duplicate_amounts: dict[str, int] | None
-    average_pulls_until_entity: dict[str, float] | None
+    currency_amounts: dict[str, int]
+    duplicate_amounts: dict[str, int]
+    average_pulls_until_entity: dict[str, float]
     observed_probability: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
-class RarityStats:
+class BatchRarityStats(BatchProbabilityEntityStats):
     average_pulls_until_completion: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
 class GlobalStats:
-    total_duplicates: int | None
-    total_currency: int | None
-    mean_currency: float | None
-    median_currency: float | None
-    currency_stdev: float | None
-    average_duplicate_count: float | None
+    mean_currency: float
+    median_currency: float
+    currency_stdev: float
+    average_duplicate_count: float
     total_pulls: int = 0
-
-
-class SimulationStats(TypedDict):
-    global_stats: GlobalStats
-    rarity_stats: RarityStats
-    item_stats: ProbabilityEntityStats
+    total_duplicates: int = 0
+    total_currency: int = 0
 
 
 @dataclass
-class SimulationAggregationStats:
-    mean_currency_per_simulation: list[float] = field(default_factory=list)
-    total_currency_per_simulation: list[float] = field(default_factory=list)
-    duplicate_amounts_per_simulation: list[int] = field(default_factory=list)
+class SimulationBatchStats:
+    global_stats: GlobalStats
+    rarity_stats: BatchRarityStats
+    item_stats: BatchProbabilityEntityStats
+
+
+@dataclass
+class PullResult:
+    rarity: NormalizedRarity
+    item: NormalizedLootItem
+    is_duplicate: bool
+    currency_awarded: int
+    is_rarity_first_pull: bool
+    is_item_first_pull: bool
+    is_rarity_complete: bool
+
+
+type CurrencyMap = dict[str, int]
