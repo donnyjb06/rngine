@@ -8,6 +8,7 @@ from app.domain.models import (
 
 T = TypeVar("T", bound=NormalizedProbabilityEntity)
 
+
 class EndpointData[T](TypedDict):
     entities: list[T]
     percentages: list[float]
@@ -17,26 +18,37 @@ class Endpoints(TypedDict):
     rarities: EndpointData[NormalizedRarity]
     items: dict[str, EndpointData[NormalizedLootItem]]
 
+
+@dataclass
+class PulledEntities:
+    item: NormalizedLootItem
+    rarity: NormalizedRarity
+
+
 @dataclass
 class SimulationState:
     endpoints: Endpoints
-    eligible_items_by_rarity: dict[str, list[str]]
+    eligible_items_by_rarity: dict[str, list[NormalizedLootItem]]
     current_total_pulls: int = 0
-    pulled_items: set[str] = field(default_factory=set)
-    pulled_rarities: set[str] = field(default_factory=set)
+    pulled_items: list[NormalizedLootItem] = field(default_factory=list)
+    pulled_rarities: list[NormalizedRarity] = field(default_factory=list)
 
 
 @dataclass
 class ProbabilityEntityStats:
     pull_counts: dict[str, int]
     currency_amounts: dict[str, int]
+
+
+@dataclass
+class ItemStats(ProbabilityEntityStats):
     duplicate_amounts: dict[str, int]
 
 
 @dataclass
 class SimulationStats:
     rarity_stats: ProbabilityEntityStats
-    item_stats: ProbabilityEntityStats
+    item_stats: ItemStats
     total_currency: int = 0
     total_duplicates: int = 0
 
@@ -66,9 +78,13 @@ class BatchProbabilityEntityStats:
     expected_probability: dict[str, float]
     pull_counts: dict[str, int]
     currency_amounts: dict[str, int]
-    duplicate_amounts: dict[str, int]
     average_pulls_until_entity: dict[str, float]
     observed_probability: dict[str, float] = field(default_factory=dict)
+
+
+@dataclass
+class BatchItemStats(BatchProbabilityEntityStats):
+    duplicate_amounts: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -91,7 +107,7 @@ class GlobalStats:
 class SimulationBatchStats:
     global_stats: GlobalStats
     rarity_stats: BatchRarityStats
-    item_stats: BatchProbabilityEntityStats
+    item_stats: BatchItemStats
 
 
 @dataclass
@@ -106,3 +122,12 @@ class PullResult:
 
 
 type CurrencyMap = dict[str, int]
+
+
+class SimulationTrackingStats(TypedDict):
+    simulation: SimulationStats
+    aggregation: SimulationAggregationStats
+
+class DuplicationConfig(TypedDict):
+    is_hard_prevention: bool
+    are_duplicate_possible: bool
