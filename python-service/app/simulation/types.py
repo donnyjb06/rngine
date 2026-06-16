@@ -67,8 +67,6 @@ class AggregationRarityStats(AggregationProbabilityEntityStats):
 class SimulationAggregationStats:
     item_stats: AggregationProbabilityEntityStats
     rarity_stats: AggregationRarityStats
-    median_currency_per_simulation: list[float] = field(default_factory=list)
-    mean_currency_per_simulation: list[float] = field(default_factory=list)
     total_currency_per_simulation: list[float] = field(default_factory=list)
     duplicate_amounts_per_simulation: list[int] = field(default_factory=list)
 
