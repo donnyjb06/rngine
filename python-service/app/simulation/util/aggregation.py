@@ -10,7 +10,6 @@ from app.simulation.types import (
     AggregationRarityStats,
     PullResult,
     SimulationAggregationStats,
-    SimulationStats,
 )
 
 
