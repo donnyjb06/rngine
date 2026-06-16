@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 __pycache__/
 *.pyc
 .coverage
+
+.DS_Store
+
