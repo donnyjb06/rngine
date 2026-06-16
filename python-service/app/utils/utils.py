@@ -51,7 +51,7 @@ def validate_percentages(config: NormalizedSimulationConfig) -> None:
         if rarity.probability is not None
     )
 
-    if total_rarity_probability > PERCENT_TOTAL and not isclose(
+    if not isclose(
         total_rarity_probability,
         PERCENT_TOTAL,
         abs_tol=PERCENT_TOLERANCE,
@@ -70,7 +70,7 @@ def validate_percentages(config: NormalizedSimulationConfig) -> None:
             item.probability for item in rarity.items if item.probability is not None
         )
 
-        if total_item_probability > PERCENT_TOTAL and not isclose(
+        if not isclose(
             total_item_probability,
             PERCENT_TOTAL,
             abs_tol=PERCENT_TOLERANCE,
