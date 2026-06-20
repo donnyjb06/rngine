@@ -22,7 +22,6 @@ from .types import (
     SimulationState,
     BatchProbabilityEntityStats,
     SimulationBatchStats,
-    ProbabilityEntityStats,
     BatchRarityStats,
     BatchProbabilityEntityStats,
     AggregationProbabilityEntityStats,
