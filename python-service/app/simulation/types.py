@@ -35,19 +35,20 @@ class SimulationState:
 
 
 @dataclass
-class ProbabilityEntityStats:
+class ItemStats:
+    pull_counts: dict[str, int]
+    duplicate_amounts: dict[str, int]
+
+
+@dataclass
+class RarityStats:
     pull_counts: dict[str, int]
     currency_amounts: dict[str, int]
 
 
 @dataclass
-class ItemStats(ProbabilityEntityStats):
-    duplicate_amounts: dict[str, int]
-
-
-@dataclass
 class SimulationStats:
-    rarity_stats: ProbabilityEntityStats
+    rarity_stats: RarityStats
     item_stats: ItemStats
     total_currency: int = 0
     total_duplicates: int = 0
@@ -73,11 +74,10 @@ class SimulationAggregationStats:
 
 @dataclass
 class BatchProbabilityEntityStats:
-    expected_probability: dict[str, float]
-    pull_counts: dict[str, int]
-    currency_amounts: dict[str, int]
-    average_pulls_until_entity: dict[str, float]
+    pull_counts: dict[str, int] = field(default_factory=dict)
+    average_pulls_until_entity: dict[str, float] = field(default_factory=dict)
     observed_probability: dict[str, float] = field(default_factory=dict)
+    expected_probability: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -87,15 +87,16 @@ class BatchItemStats(BatchProbabilityEntityStats):
 
 @dataclass
 class BatchRarityStats(BatchProbabilityEntityStats):
+    currency_amounts: dict[str, int] = field(default_factory=dict)
     average_pulls_until_completion: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
 class GlobalStats:
-    mean_currency: float
-    median_currency: float
-    currency_stdev: float
-    average_duplicate_count: float
+    mean_currency: float | None = None
+    median_currency: float | None = None
+    currency_stdev: float | None = None
+    average_duplicate_count: float | None = None
     total_pulls: int = 0
     total_duplicates: int = 0
     total_currency: int = 0
@@ -126,6 +127,34 @@ class SimulationTrackingStats(TypedDict):
     simulation: SimulationStats
     aggregation: SimulationAggregationStats
 
+
 class DuplicationConfig(TypedDict):
     is_hard_prevention: bool
     are_duplicate_possible: bool
+
+
+class FinalStats(TypedDict):
+    batch: SimulationBatchStats
+    aggregation: SimulationAggregationStats
+
+
+class BatchItemStatsUpdate(TypedDict):
+    pull_counts: dict[str, int]
+    duplicate_amounts: dict[str, int]
+
+
+class BatchRarityStatsUpdate(TypedDict):
+    pull_counts: dict[str, int]
+    currency_amounts: dict[str, int]
+
+
+class BatchGlobalStatsUpdate(TypedDict):
+    total_pulls: int
+    total_currency: int
+    total_duplicates: int
+
+
+class BatchStatsUpdateData(TypedDict):
+    item_data: BatchItemStatsUpdate
+    rarity_data: BatchRarityStatsUpdate
+    global_data: BatchGlobalStatsUpdate
