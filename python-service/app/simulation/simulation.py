@@ -1,5 +1,4 @@
 from random import Random
-from app import simulation
 from app.domain import NormalizedSimulationConfig
 from app.simulation import (
     build_simulation_state,
@@ -8,7 +7,6 @@ from app.simulation import (
     update_state,
     record_pull,
 )
-from app.simulation.util import aggregation
 from app.simulation.util.aggregation import (
     create_simulation_aggregation_stats,
     update_simulation_aggregation_stats_per_simulation,
