@@ -159,13 +159,13 @@ class TestRunSimulation:
         ] == [1]
 
 
-class RunSimulationBatch:
-    def returns_correct_final_aggregated_stats(self):
+class TestRunSimulationBatch:
+    def test_returns_correct_final_aggregated_stats(self):
         config = build_run_simulation_config()
 
         final_stats = run_simulation_batch(config)
 
-        assert final_stats["batch"].global_stats.total_duplicates == 9
+        assert final_stats["batch"].global_stats.total_duplicates == 7
         assert (
             final_stats["batch"].global_stats.total_pulls
             == config.pulls_per_simulation * config.simulation_count

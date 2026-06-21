@@ -1,4 +1,5 @@
 from random import Random
+from app import simulation
 from app.domain import NormalizedSimulationConfig
 from app.simulation import (
     build_simulation_state,
@@ -7,9 +8,28 @@ from app.simulation import (
     update_state,
     record_pull,
 )
+from app.simulation.util import aggregation
+from app.simulation.util.aggregation import (
+    create_simulation_aggregation_stats,
+    update_simulation_aggregation_stats_per_simulation,
+)
+from app.simulation.util.currency import build_rarity_currency_map
+from app.simulation.util.random import generate_rng
+from app.simulation.util.stats import (
+    create_batch_update_data,
+    create_final_stats,
+    create_simulation_batch_stats,
+    create_simulation_stats,
+    update_simulation_batch_stats,
+)
 from .types import (
     CurrencyMap,
     DuplicationConfig,
+    FinalStats,
+    PullResult,
+    PulledEntities,
+    SimulationAggregationStats,
+    SimulationStats,
     SimulationTrackingStats,
 )
 
@@ -23,10 +43,12 @@ def run_simulation(
     state = build_simulation_state(config)
 
     for _ in range(config.pulls_per_simulation):
-        pulled_entities = pull_item(rng, state.endpoints)
+        pulled_entities: PulledEntities = pull_item(rng, state.endpoints)
         update_state(config, state, pulled_entities)
-        pull_result = create_pull_result(pulled_entities, state, currency_map)
-        duplication_config = DuplicationConfig(
+        pull_result: PullResult = create_pull_result(
+            pulled_entities, state, currency_map
+        )
+        duplication_config: DuplicationConfig = DuplicationConfig(
             is_hard_prevention=config.duplicate_mode == "hard_prevention",
             are_duplicate_possible=config.duplicate_mode != "hard_prevention",
         )
@@ -38,61 +60,36 @@ def run_simulation(
         if not state.eligible_items_by_rarity:
             break
 
-    """
-    simulation_state = build_simulation_state(config, rng)
-        create_endpoints
-        create eligible_items_by_rarity
-        RETURN new SimulationState object
 
-    FOR each pull in config.pulls_per_simulation:
-        pull_item(rng)
-            get next random number
-            get next rarity
-            get next item
+def run_simulation_batch(config: NormalizedSimulationConfig) -> FinalStats:
 
-            RETURN item, rarity
+    simulation_aggregation_stats: SimulationAggregationStats = (
+        create_simulation_aggregation_stats(config.rarities)
+    )
+    rng = generate_rng(config.seed)
+    currency_map = build_rarity_currency_map(config.rarities)
+    simulation_batch_stats = create_simulation_batch_stats(config.rarities)
 
-        update_state(config, state, pulled item, pulled rarity)
-            if hard_prevention
-            update endpoints
-            update eligible_items_by_rarity
+    for _ in range(config.simulation_count):
+        simulation_stats: SimulationStats = create_simulation_stats(config.rarities)
 
-            increment current total pulls
+        tracking_stats: SimulationTrackingStats = {
+            "simulation": simulation_stats,
+            "aggregation": simulation_aggregation_stats,
+        }
 
+        run_simulation(config, tracking_stats, currency_map, rng)
+        update_simulation_aggregation_stats_per_simulation(
+            tracking_stats["aggregation"],
+            total_currency=tracking_stats["simulation"].total_currency,
+            total_duplicates=tracking_stats["simulation"].total_duplicates,
+        )
 
-        create pull results(pulled_item, pulled_rarity, state, currency_map)
-            pull_result = PullResult(
-                is_item_first_pull = item not in pulled items
-                is_rarity_first_pull = item not in pulled rarities
-                rarity_name = rarity.name
-                item.name = item.name
-                currency_awarded = currency value of pulled rarity name key if duplicate currency else 0
-                is_rarity_complete = items list for rarity in eligible_items_by_rarity is empty
-                is_duplicate = true if allow duplicate or duplicate currency else false
-                                     )
+        batch_stats_update_data = create_batch_update_data(simulation_stats)
+        update_simulation_batch_stats(batch_stats_update_data, simulation_batch_stats)
 
-            add rarity to pulled rarities
-            add item to pulled items
+    final_stats = create_final_stats(
+        simulation_aggregation_stats, simulation_batch_stats, config.rarities
+    )
 
-            return pull_result
-
-        record_pull
-            update_simulation_stats(pull_result, simulation_stats, config, state)
-                award global, simulation item, simulation rarity currency
-                increment global, simulation item, simulation rarity duplicates if is duplicate
-
-                increment pulled item and rarity pull counts
-
-            update_simulation_aggregation_stats_per_pull()
-                if item first pull
-                    append current total pulls to pulled item pulls until entity list
-
-                if rarity first pull
-                    append current total pulls to pulled rarity pulls until entity list
-
-                if hard_prevention
-                    if rarity complete
-                        append current total pulls to pulled rarity pulls until complete list
-
-
-    """
+    return final_stats
