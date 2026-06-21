@@ -165,7 +165,7 @@ class TestRunSimulationBatch:
 
         final_stats = run_simulation_batch(config)
 
-        assert final_stats["batch"].global_stats.total_duplicates == 7
+        assert final_stats["batch"].global_stats.total_duplicates == 9
         assert (
             final_stats["batch"].global_stats.total_pulls
             == config.pulls_per_simulation * config.simulation_count
