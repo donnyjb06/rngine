@@ -1,0 +1,6 @@
+### CHECK HEALTH
+GET http://localhost:8000/health
+
+### ROOT
+GET http://localhost:8000/
+
