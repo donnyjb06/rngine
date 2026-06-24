@@ -1,5 +1,6 @@
 from app.domain.models import NormalizedRarity
 from app.simulation.constants import BASE_CURRENCY
+from app.simulation.exceptions import InvalidProbabilityError
 
 
 def build_rarity_currency_map(
@@ -10,7 +11,7 @@ def build_rarity_currency_map(
 
     for entity in entities:
         if max_probability <= 0 or entity.probability <= 0:
-            raise ValueError(
+            raise InvalidProbabilityError(
                 "Probabilities must be greater than zero to calculate currency values"
             )
 

@@ -8,6 +8,7 @@ from app.simulation.types import (
     BatchStatsUpdateData,
     SimulationTrackingStats,
 )
+from app.simulation.exceptions import SimulationEngineExecutionError
 from app.simulation.util.aggregation import create_simulation_aggregation_stats
 from app.simulation.util.stats import (
     create_descriptive_statistics,
@@ -198,14 +199,14 @@ class TestUpdateSimulationBatchStatistics:
         batch_updates_data = self.build_batch_update_stats(item_name="knife")
         batch_stats = create_simulation_batch_stats(self.rarities)
 
-        with pytest.raises(KeyError, match="item"):
+        with pytest.raises(SimulationEngineExecutionError, match="item"):
             update_simulation_batch_stats(batch_updates_data, batch_stats)
 
     def test_raises_key_error_when_update_data_contains_unknown_rarity_name(self):
         batch_updates_data = self.build_batch_update_stats(rarity_name="commmon")
         batch_stats = create_simulation_batch_stats(self.rarities)
 
-        with pytest.raises(KeyError, match="rarity"):
+        with pytest.raises(SimulationEngineExecutionError, match="rarity"):
             update_simulation_batch_stats(batch_updates_data, batch_stats)
 
     def test_correctly_updates_global_stats(self):
@@ -222,7 +223,7 @@ class TestUpdateSimulationBatchStatistics:
         batch_updates_data = self.build_batch_update_stats(total_pulls=-4)
         batch_stats = create_simulation_batch_stats(self.rarities)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(SimulationEngineExecutionError):
             update_simulation_batch_stats(batch_updates_data, batch_stats)
 
 

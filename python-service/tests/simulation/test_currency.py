@@ -1,6 +1,7 @@
 import pytest
 
 from app.domain.models import NormalizedLootItem, NormalizedRarity
+from app.simulation.exceptions import InvalidProbabilityError
 from app.simulation.util.currency import build_rarity_currency_map
 
 
@@ -50,8 +51,8 @@ class TestBuildCurrencyMap:
         assert result["Rare"] == 1250
         assert result["Epic"] == 5000
 
-    def test_raises_value_error_when_probability_is_0(self):
-        with pytest.raises(ValueError):
+    def test_raises_invalid_probability_error_when_probability_is_0(self):
+        with pytest.raises(InvalidProbabilityError):
             build_rarity_currency_map(
                 [NormalizedRarity(name="Common", probability=0, items=[])]
             )

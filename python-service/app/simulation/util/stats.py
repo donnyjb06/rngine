@@ -4,6 +4,7 @@ from app.domain.models import (
     NormalizedLootItem,
     NormalizedRarity,
 )
+from app.simulation.exceptions import SimulationEngineExecutionError
 from app.simulation.types import (
     BatchGlobalStatsUpdate,
     BatchItemStats,
@@ -111,13 +112,15 @@ def update_batch_item_stats(
 ) -> None:
     for name, amount in item_data["duplicate_amounts"].items():
         if name not in batch_stats.item_stats.duplicate_amounts:
-            raise KeyError("Missing item in duplicate amounts dictionary")
+            raise SimulationEngineExecutionError(
+                "Missing item in duplicate amounts dictionary"
+            )
 
         batch_stats.item_stats.duplicate_amounts[name] += amount
 
     for name, amount in item_data["pull_counts"].items():
         if name not in batch_stats.item_stats.pull_counts:
-            raise KeyError("Missing item in pull counts list")
+            raise SimulationEngineExecutionError("Missing item in pull counts list")
 
         batch_stats.item_stats.pull_counts[name] += amount
 
@@ -128,13 +131,15 @@ def update_batch_rarity_stats(
 
     for name, amount in rarity_data["currency_amounts"].items():
         if name not in batch_stats.rarity_stats.currency_amounts:
-            raise KeyError("Missing rarity in duplicate amounts dictionary")
+            raise SimulationEngineExecutionError(
+                "Missing rarity in duplicate amounts dictionary"
+            )
 
         batch_stats.rarity_stats.currency_amounts[name] += amount
 
     for name, amount in rarity_data["pull_counts"].items():
         if name not in batch_stats.rarity_stats.pull_counts:
-            raise KeyError("Missing rarity in pull counts list")
+            raise SimulationEngineExecutionError("Missing rarity in pull counts list")
 
         batch_stats.rarity_stats.pull_counts[name] += amount
 
@@ -146,7 +151,7 @@ def update_global_batch_stats(
         amount = cast(int, value)
 
         if amount < 0:
-            raise ValueError(f"Total amount of {amount} is invalid")
+            raise SimulationEngineExecutionError(f"Total amount of {amount} is invalid")
 
     batch_stats.global_stats.total_currency += global_stats["total_currency"]
     batch_stats.global_stats.total_pulls += global_stats["total_pulls"]

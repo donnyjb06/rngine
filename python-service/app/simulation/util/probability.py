@@ -2,6 +2,7 @@ from bisect import bisect_left
 from typing import Sequence
 
 from app.domain.models import NormalizedProbabilityEntity
+from app.simulation.exceptions import SimulationEngineExecutionError
 from app.simulation.types import EndpointData, T
 
 
@@ -15,7 +16,7 @@ def normalize_percentages(
         return []
 
     if total_percentage <= 0:
-        raise ValueError(
+        raise SimulationEngineExecutionError(
             "Total percentage must be greater than zero to normalize probabilities"
         )
 
@@ -34,7 +35,7 @@ def normalize_percentages(
 
 def get_next_entity[T](endpoints: EndpointData[T], random_number: float) -> T:
     if len(endpoints["entities"]) != len(endpoints["percentages"]):
-        raise ValueError(
+        raise SimulationEngineExecutionError(
             "Endpoints data is malformed: entities and percentages length mismatch"
         )
 

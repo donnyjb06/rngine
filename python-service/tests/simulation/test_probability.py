@@ -1,6 +1,7 @@
 import pytest
 
 from app.domain.models import NormalizedProbabilityEntity
+from app.simulation.exceptions import SimulationEngineExecutionError
 from app.simulation.types import EndpointData
 from app.simulation.util.probability import get_next_entity, normalize_percentages
 
@@ -54,7 +55,8 @@ class TestGetNextEntity:
         }
 
         with pytest.raises(
-            ValueError, match="entities and percentages length mismatch"
+            SimulationEngineExecutionError,
+            match="entities and percentages length mismatch",
         ):
             get_next_entity(endpoints, 25)
 
@@ -98,6 +100,7 @@ class TestNormalizePercentages:
         ]
 
         with pytest.raises(
-            ValueError, match="Total percentage must be greater than zero"
+            SimulationEngineExecutionError,
+            match="Total percentage must be greater than zero",
         ):
             normalize_percentages(entities)

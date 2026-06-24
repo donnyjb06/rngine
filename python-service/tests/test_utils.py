@@ -8,6 +8,11 @@ from app.domain.models import (
     NormalizedRarity,
     NormalizedSimulationConfig,
 )
+from app.simulation.exceptions import (
+    InvalidProbabilityError,
+    InvalidWeightError,
+    SimulationConfigError,
+)
 
 from app.utils import (
     getTotalWeight,
@@ -36,7 +41,7 @@ class TestGetTotalWeight:
             RawLootItem(name="Test Item 2", weight=-20),
         ]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidWeightError):
             getTotalWeight(entities)
 
     def test_handles_valid_values(self):
@@ -63,13 +68,13 @@ class TestRequireWeight:
     def test_handles_weight_none(self):
         entity = RawLootItem(name="Test Item")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidWeightError):
             require_weight(entity)
 
     def test_handles_weight_zero(self):
         entity = RawLootItem(name="Test Item", weight=0)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidWeightError):
             require_weight(entity)
 
 class TestValidateWeight:
@@ -95,7 +100,9 @@ class TestValidateWeight:
             )
         ]
 
-        with pytest.raises(ValueError, match="Common must have a non-negative weight"):
+        with pytest.raises(
+            InvalidWeightError, match="Common must have a non-negative weight"
+        ):
             validate_weight(rarities, "item_probability")
 
     def test_raises_when_rarity_weight_is_negative(self):
@@ -107,7 +114,9 @@ class TestValidateWeight:
             )
         ]
 
-        with pytest.raises(ValueError, match="Common must have a non-negative weight"):
+        with pytest.raises(
+            InvalidWeightError, match="Common must have a non-negative weight"
+        ):
             validate_weight(rarities, "item_probability")
 
     def test_raises_when_item_weight_is_missing_in_item_probability_mode(self):
@@ -120,7 +129,8 @@ class TestValidateWeight:
         ]
 
         with pytest.raises(
-            ValueError, match="Sword in rarity Common must have a non-negative weight"
+            InvalidWeightError,
+            match="Sword in rarity Common must have a non-negative weight",
         ):
             validate_weight(rarities, "item_probability")
 
@@ -173,7 +183,9 @@ class TestValidateConfig:
             ],
         )
 
-        with pytest.raises(ValueError, match="simulation_count must be greater than 0"):
+        with pytest.raises(
+            SimulationConfigError, match="simulation_count must be greater than 0"
+        ):
             validate_config(config)
 
     def test_raises_when_pulls_per_simulation_is_zero(self):
@@ -194,7 +206,7 @@ class TestValidateConfig:
         )
 
         with pytest.raises(
-            ValueError, match="pulls_per_simulation must be greater than 0"
+            SimulationConfigError, match="pulls_per_simulation must be greater than 0"
         ):
             validate_config(config)
 
@@ -219,7 +231,8 @@ class TestValidateConfig:
         )
 
         with pytest.raises(
-            ValueError, match="Not enough items in rarity Common to prevent duplicates"
+            SimulationConfigError,
+            match="Not enough items in rarity Common to prevent duplicates",
         ):
             validate_config(config)
 
@@ -239,7 +252,9 @@ class TestValidateConfig:
             ],
         )
 
-        with pytest.raises(ValueError, match="Common must have a non-negative weight"):
+        with pytest.raises(
+            InvalidWeightError, match="Common must have a non-negative weight"
+        ):
             validate_config(config)
 
 
@@ -317,7 +332,8 @@ class TestValidatePercentages:
         )
 
         with pytest.raises(
-            ValueError, match="Total rarity probabilities must not exceed 100%"
+            InvalidProbabilityError,
+            match="Total rarity probabilities must not exceed 100%",
         ):
             validate_percentages(config)
 
@@ -341,7 +357,7 @@ class TestValidatePercentages:
         )
 
         with pytest.raises(
-            ValueError,
+            InvalidProbabilityError,
             match="Total item probabilities in rarity Common must not exceed 100%",
         ):
             validate_percentages(config)
@@ -416,7 +432,7 @@ class TestNormalizeItemsForRarity:
             items=[],
         )
 
-        with pytest.raises(ValueError, match="must have at least one item"):
+        with pytest.raises(SimulationConfigError, match="must have at least one item"):
             normalize_items_for_rarity(rarity, "equal_chance", "percentage")
 
     def test_raises_when_weight_mode_has_no_valid_total_weight(self):
@@ -429,7 +445,8 @@ class TestNormalizeItemsForRarity:
         )
 
         with pytest.raises(
-            ValueError, match="Total weight for items in rarity Common cannot be zero"
+            InvalidWeightError,
+            match="Total weight for items in rarity Common cannot be zero",
         ):
             normalize_items_for_rarity(rarity, "item_probability", "weight")
 
@@ -443,7 +460,8 @@ class TestNormalizeItemsForRarity:
         )
 
         with pytest.raises(
-            ValueError, match="Sword in rarity Common must have a probability"
+            InvalidProbabilityError,
+            match="Sword in rarity Common must have a probability",
         ):
             normalize_items_for_rarity(rarity, "item_probability", "percentage")
 
@@ -498,7 +516,7 @@ class TestNormalizeRarity:
             ],
         )
 
-        with pytest.raises(ValueError, match="Total rarity weight is required"):
+        with pytest.raises(InvalidWeightError, match="Total rarity weight is required"):
             normalize_rarity(
                 rarity=rarity,
                 total_rarity_weight=None,
@@ -514,7 +532,7 @@ class TestNormalizeRarity:
             ],
         )
 
-        with pytest.raises(ValueError, match="probability must exist"):
+        with pytest.raises(InvalidProbabilityError, match="probability must exist"):
             normalize_rarity(
                 rarity=rarity,
                 total_rarity_weight=None,
