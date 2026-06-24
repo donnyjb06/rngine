@@ -1,6 +1,224 @@
 ### CHECK HEALTH
-GET http://localhost:8000/health
+GET http://localhost:8001/health
 
 ### ROOT
-GET http://localhost:8000/
+GET http://localhost:8001/
 
+### RUN SIMULATION - CURRENCY - EQUAL - WEIGHT
+POST http://localhost:8001/simulation/run
+Content-Type: application/json
+
+{
+  "simulation_count": 3,
+  "pulls_per_simulation": 3,
+  "duplicate_mode": "duplicate_currency",
+  "seed": 1234,
+  "item_selection_mode": "equal_chance",
+  "probability_mode": "weight",
+  "rarities": [
+    {
+      "name": "Common",
+      "weight": 70,
+      "items": [
+        {
+          "name": "Iron Sword"
+        },
+        {
+          "name": "Wooden Shield"
+        },
+        {
+          "name": "Health Potion"
+        }
+      ]
+    },
+    {
+      "name": "Rare",
+      "weight": 25,
+      "items": [
+        {
+          "name": "Flame Bow"
+        },
+        {
+          "name": "Frost Staff"
+        },
+        {
+          "name": "Steel Armor"
+        }
+      ]
+    },
+    {
+      "name": "Legendary",
+      "weight": 5,
+      "items": [
+        {
+          "name": "Dragon Blade"
+        },
+        {
+          "name": "Phoenix Crown"
+        }
+      ]
+    }
+  ]
+}
+
+### RUN SIMULATION - HARD PREVENTION - EQUAL - WEIGHT
+POST http://localhost:8001/simulation/run
+Content-Type: application/json
+
+{
+  "simulation_count": 3,
+  "pulls_per_simulation": 3,
+  "duplicate_mode": "hard_prevention",
+  "seed": 1234,
+  "item_selection_mode": "equal_chance",
+  "probability_mode": "weight",
+  "rarities": [
+    {
+      "name": "Common",
+      "weight": 70,
+      "items": [
+        {
+          "name": "Iron Sword"
+        },
+        {
+          "name": "Wooden Shield"
+        },
+        {
+          "name": "Health Potion"
+        }
+      ]
+    },
+    {
+      "name": "Rare",
+      "weight": 25,
+      "items": [
+        {
+          "name": "Flame Bow"
+        },
+        {
+          "name": "Frost Staff"
+        },
+        {
+          "name": "Steel Armor"
+        }
+      ]
+    },
+    {
+      "name": "Legendary",
+      "weight": 5,
+      "items": [
+        {
+          "name": "Dragon Blade"
+        },
+        {
+          "name": "Phoenix Crown"
+        },
+        {
+          "name": "Ring of Lunar"
+        },
+        {
+          "name": "Solstice Cloak"
+        }
+
+      ]
+    }
+  ]
+}
+
+
+### RUN SIMULATION - HARD PREVENTION - EQUAL - WEIGHT
+POST http://localhost:8001/simulation/run
+Content-Type: application/json
+
+{
+  "simulation_count": 3,
+  "pulls_per_simulation": 3,
+  "duplicate_mode": "hard_prevention",
+  "seed": 1234,
+  "item_selection_mode": "equal_chance",
+  "probability_mode": "weight",
+  "rarities": [
+    {
+      "name": "Common",
+      "weight": 70,
+      "items": [
+        {
+          "name": "Iron Sword"
+        },
+        {
+          "name": "Wooden Shield"
+        },
+        {
+          "name": "Health Potion"
+        }
+      ]
+    },
+    {
+      "name": "Rare",
+      "weight": 25,
+      "items": [
+        {
+          "name": "Flame Bow"
+        },
+        {
+          "name": "Frost Staff"
+        },
+        {
+          "name": "Steel Armor"
+        }
+      ]
+    },
+    {
+      "name": "Legendary",
+      "weight": 5,
+      "items": [
+        {
+          "name": "Dragon Blade"
+        },
+        {
+          "name": "Phoenix Crown"
+        },
+        {
+          "name": "Ring of Lunar"
+        },
+        {
+          "name": "Solstice Cloak"
+        }
+
+      ]
+    }
+  ]
+}
+
+
+### RUN SIMULATION - HARD PREVENTION - EQUAL - PROBABILITY
+POST http://localhost:8001/simulation/run
+Content-Type: application/json
+
+{
+  "simulation_count": 1,
+  "pulls_per_simulation": 2,
+  "duplicate_mode": "hard_prevention",
+  "seed": 1234,
+  "item_selection_mode": "equal_chance",
+  "probability_mode": "percentage",
+  "rarities": [
+    {
+      "name": "Common",
+      "weight": 70,
+      "probability": 100,
+      "items": [
+        {
+          "name": "Iron Sword"
+        },
+        {
+          "name": "Wooden Shield"
+        },
+        {
+          "name": "Health Potion"
+        }
+      ]
+    },
+    
+  ]
+}
